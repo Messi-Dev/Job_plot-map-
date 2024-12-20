@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+			<meta charset="utf-8">
+				<title>Sitios Seleccionados</title>
+				<style>       html, body, #map-canvas {         height: 100%;         margin: 0px;         padding: 0px       }     
+				</style>
+				<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+				<script> 
+				function initialize() {     
+																
+					var map = new google.maps.Map(document.getElementById("map-canvas"), { mapTypeId: google.maps.MapTypeId.ROADMAP, streetViewControl: false });      
+					var markers = [ { lat: -2.18166672, lng: -79.94723666, title: "Almabi (#187)", name: "<b>Sitio:</b> Almabi (#187)", icon: "https://api.inalambrik.com/routik/resources/pinblue.png" }, { lat: -2.18169020, lng: -79.94731300, title: "Almabi (#701)", name: "<b>Sitio:</b> Almabi (#701)", icon: "https://api.inalambrik.com/routik/resources/pinblue.png" }, { lat: -2.15004000, lng: -79.90019900, title: "Almacenes Boyaca (#149)", name: "<b>Sitio:</b> Almacenes Boyaca (#149)", icon: "https://api.inalambrik.com/routik/resources/pinblue.png" }, { lat: -2.89049077, lng: -78.99069213, title: "Almacenes Juan Eljuri (#308)", name: "<b>Sitio:</b> Almacenes Juan Eljuri (#308)", icon: "https://api.inalambrik.com/routik/resources/pinblue.png" } ];     
+					for (index in markers) addMarker(markers[index]); 
+					function addMarker(data) 
+					{       
+						var marker = new google.maps.Marker({ position: new google.maps.LatLng(data.lat, data.lng), map: map, title: data.title, icon: data.icon });           
+						var content = document.createElement("DIV"); 
+						var title = document.createElement("DIV"); title.innerHTML = data.name; content.appendChild(title); 
+						var streetview = document.createElement("DIV"); streetview.style.width = "200px"; streetview.style.height = "200px"; content.appendChild(streetview); 
+						var infowindow = new google.maps.InfoWindow({ content: content });       
+						google.maps.event.addListener(marker, "click", function() { infowindow.open(map, marker); });           
+					}  
+					var bounds = new google.maps.LatLngBounds(); 
+					for (index in markers) 
+					{ 
+						var data = markers[index]; 
+						bounds.extend(new google.maps.LatLng(data.lat, data.lng)); 
+					} map.fitBounds(bounds); 					
+					
+					map.addListener('zoom_changed', function() {					  
+					  											
+					
+					});    				
+										
+				} 
+				</script>
+</head>
+<body onload="initialize()">
+	<div id="map-canvas"></div>
+</body>
+</html>
