@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Map and Sidebar</title>
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      #sidebar {
+        width: 300px;
+        padding: 15px;
+        background-color: #f4f4f4;
+        border-right: 1px solid #ccc;
+        overflow-y: auto;
+      }
+      #map {
+        flex: 1;
+        height: 100vh;
+      }
+      .form-group {
+        margin-bottom: 10px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      #filters {
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+  </head>
+  <body>
+    <div id="sidebar">
+      <h2>Job Input Form</h2>
+      <div class="form-group">
+        <label for="job-address">Street Address</label>
+        <input type="text" id="job-address" placeholder="Enter address" />
+      </div>
+      <div class="form-group">
+        <label for="job-description">Short Description</label>
+        <textarea
+          id="job-description"
+          rows="3"
+          placeholder="Enter job description"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label for="job-category">Category</label>
+        <select id="job-category">
+          <option value="flooring">Flooring</option>
+          <option value="cabinet">Cabinet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="job-photo">Photo Upload</label>
+        <input type="file" id="job-photo" />
+      </div>
+      <button onclick="addJob()">Add Job</button>
+
+      <div id="filters">
+        <h3>Filters</h3>
+        <div class="form-group">
+          <label for="city-filter">City</label>
+          <input type="text" id="city-filter" placeholder="Enter city" />
+        </div>
+        <div class="form-group">
+          <label for="category-filter">Category</label>
+          <select id="category-filter">
+            <option value="all">All</option>
+            <option value="flooring">Flooring</option>
+            <option value="cabinet">Cabinet</option>
+          </select>
+        </div>
+        <button onclick="applyFilters()">Apply Filters</button>
+      </div>
+    </div>
+    <div id="map"></div>
+
+    <script>
+      let map;
+      let markers = [];
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: -33.8688, lng: 151.2093 }, // Sydney coordinates
+          zoom: 13,
+        });
+      }
+
+      function addJob() {
+        const address = document.getElementById("job-address").value;
+        const description = document.getElementById("job-description").value;
+        const category = document.getElementById("job-category").value;
+        const photo = document.getElementById("job-photo").files[0];
+
+        // Geocode address to get coordinates
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address }, (results, status) => {
+          if (status === "OK") {
+            const position = results[0].geometry.location;
+
+            const marker = new google.maps.Marker({
+              position,
+              map,
+              icon:
+                category === "flooring"
+                  ? "flooring-icon.png"
+                  : "cabinet-icon.png",
+              title: `${address} - ${category}`,
+            });
+
+            marker.addListener("mouseover", () => {
+              const infoWindow = new google.maps.InfoWindow({
+                content: `${address.split(" ")[0]} Avenue - ${category}`,
+              });
+              infoWindow.open(map, marker);
+            });
+
+            markers.push(marker);
+          } else {
+            alert("Could not find address: " + status);
+          }
+        });
+      }
+
+      function applyFilters() {
+        const city = document.getElementById("city-filter").value.toLowerCase();
+        const category = document.getElementById("category-filter").value;
+
+        markers.forEach((marker) => {
+          const matchCity = city
+            ? marker.title.toLowerCase().includes(city)
+            : true;
+          const matchCategory =
+            category === "all" || marker.title.includes(category);
+
+          marker.setVisible(matchCity && matchCategory);
+        });
+      }
+
+      window.onload = initMap;
+    </script>
+  </body>
+</html>
